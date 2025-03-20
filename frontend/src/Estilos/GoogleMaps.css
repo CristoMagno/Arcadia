@@ -1,0 +1,186 @@
+/* Estilos globales */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f4f8;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  color: #4A90E2;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.bg-red-100 {
+  background-color: #fef2f2;
+}
+
+.bg-blue-100 {
+  background-color: #ebf4ff;
+}
+
+.bg-green-100 {
+  background-color: #d4f7db;
+}
+
+.bg-blue-500 {
+  background-color: #4A90E2;
+}
+
+.bg-green-500 {
+  background-color: #50C878;
+}
+
+.text-blue-700 {
+  color: #0061A8;
+}
+
+.text-red-700 {
+  color: #9b2c2c;
+}
+
+.text-green-700 {
+  color: #1C7C5B;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.border {
+  border: 1px solid;
+}
+
+.border-blue-400 {
+  border-color: #4A90E2;
+}
+
+.border-green-400 {
+  border-color: #50C878;
+}
+
+.border-red-400 {
+  border-color: #e53e3e;
+}
+
+.rounded {
+  border-radius: 8px;
+}
+
+.px-4 {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.py-3 {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.py-2 {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.max-w-md {
+  max-width: 28rem;
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: #0061A8;
+}
+
+.hover\:bg-green-700:hover {
+  background-color: #006B3F;
+}
+
+.hover\:bg-red-700:hover {
+  background-color: #9B2C2C;
+}
+
+.text-white {
+  color: white;
+}
+
+.text-gray-600 {
+  color: #4A4A4A;
+}
+
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  margin-right: 8px;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+button {
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+  align-self: center;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:hover {
+  transform: scale(1.05); /* Sutil aumento de tamaño al pasar el ratón */
+}
+
+button:active {
+  transform: scale(0.98); /* Efecto de "presionar" cuando se hace clic */
+}
+
+/* Añadir estilos específicos de mapa */
+#map {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
