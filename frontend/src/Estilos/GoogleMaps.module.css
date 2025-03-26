@@ -10,10 +10,19 @@
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
 }
+.reload{
+ height: 100%;
+
+
+}
+
+
+
 
 /* Contenedor principal fullscreen */
 .mapRoot {
   position: fixed;
+
   top: 0;
   left: 0;
   right: 0;
@@ -27,32 +36,28 @@
   padding: 0;
   overflow: hidden;
 }
-/* Cabecera del mapa */
 .mapHeader {
   padding: 1rem;
-  background-color: transparent; /* Asegura que el fondo sea transparente */
   z-index: 10;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end; /* Cambiado de center a flex-end */
   gap: 0.5rem;
-  position: absolute; /* Cambiado de relative a absolute */
+  position: absolute; /* Se mantiene como absolute */
   top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  backdrop-filter: blur(5px); /* Efecto de desenfoque sutil para mejor legibilidad */
-  -webkit-backdrop-filter: blur(5px); /* Soporte para Safari */
+  right: 0; 
+  width: 20%;
+  padding-right: 1rem; /* Agregamos un padding derecho para que no quede pegado a la esquina */
 }
 
 
 .mapTitle {
   color: var(--text-light); /* Cambiado de primary-color a text-light */
-  font-size: 1.25rem;
+  font-size: 1.6rem;
   font-weight: bold;
   margin: 0;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5); /* Sombra para mejor contraste */
-  background-color: rgba(0, 0, 0, 0.3); /* Fondo semitransparente solo para el título */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra para mejor contraste */
+  background: linear-gradient(to right, #292036, #000000,0.01);
   padding: 0.5rem 1rem;
   border-radius: 2rem;
 }
@@ -84,7 +89,8 @@
   gap: 0.5rem;
 }
 .mapButton {
-  background-color: var(--primary-color);
+  background: linear-gradient(to right, #292036, #000000);
+
   color: var(--text-light);
   font-weight: bold;
   padding: 0.5rem 1.5rem;
@@ -95,6 +101,7 @@
   transition: var(--transition);
   box-shadow: var(--shadow);
   z-index: 10;
+  height: 100%;
 }
 .mapButton:hover {
   background-color: var(--primary-hover);
@@ -104,6 +111,15 @@
 .mapButton:active {
   background-color: var(--primary-active);
   transform: scale(0.98);
+}
+.mapHeader {
+  padding: 0.5rem;
+  gap: 0.3rem;
+}
+
+.mapTitle {
+  font-size: 1.5rem;
+  padding: 0.3rem 0.6rem;
 }
 
 /* Mensajes y estados */
@@ -180,12 +196,10 @@
 @media (max-width: 768px) {
   .mapHeader {
     padding: 0.75rem;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
   }
   
   .mapTitle {
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     padding: 0.4rem 0.8rem;
   }
 }
@@ -197,7 +211,7 @@
   }
   
   .mapTitle {
-    font-size: 0.9rem;
+    font-size: 1.5rem;
     padding: 0.3rem 0.6rem;
   }
 }

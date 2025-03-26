@@ -1,65 +1,94 @@
 import { useEffect, useState } from "react";
 import styles from '../Estilos/GoogleMaps.module.css';
+import Sidebar from "../Components/Sidebar";
+import logoPng from "../Images/logopng.png";
+import { IoReloadCircle } from "react-icons/io5";
+
+// Función que carga el script de Google Maps y devuelve una promesa
+const loadGoogleMapsScript = () => {
+  return new Promise((resolve, reject) => {
+    if (window.google?.maps) {
+      return resolve();
+    }
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVA6g0s25NHqbJrJlW1PPvp_w5uAI_IHw`;
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Error al cargar Google Maps"));
+    document.head.appendChild(script);
+  });
+};
+
+// Función que envuelve la geolocalización en una promesa
+const getCurrentLocation = () => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      return reject(new Error("La geolocalización no es soportada por tu navegador"));
+    }
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0,
+    };
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+      },
+      (error) => reject(new Error("Ubicación no obtenida")),
+      options
+    );
+  });
+};
 
 export default function GoogleMaps() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  const requestLocation = () => {
+  // Función para solicitar la ubicación
+  const requestLocation = async () => {
     setError(null);
-    
-    if (!navigator.geolocation) {
-      setError("La geolocalización no es soportada por tu navegador");
-      return;
+    try {
+      const loc = await getCurrentLocation();
+      setLocation(loc);
+    } catch (err) {
+      console.error("Error de geolocalización:", err);
+      setError(err.message);
     }
-
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0,
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        });
-      },
-      (error) => {
-        console.error("Error de geolocalización:", error);
-        setError("Ubicación no obtenida");
-      },
-      options
-    );
   };
 
   useEffect(() => {
-    const loadGoogleMapsScript = () => {
-      if (window.google?.maps) {
-        setMapLoaded(true);
-        return;
+    let isMounted = true;
+
+    const initializeMap = async () => {
+      try {
+        await loadGoogleMapsScript();
+        if (isMounted) {
+          setMapLoaded(true);
+          await requestLocation();
+        }
+      } catch (err) {
+        console.error(err);
+        if (isMounted) {
+          setError(err.message);
+        }
       }
-
-      const googleMapScript = document.createElement('script');
-      googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVA6g0s25NHqbJrJlW1PPvp_w5uAI_IHw`;
-      googleMapScript.async = true;
-      googleMapScript.defer = true;
-      googleMapScript.onload = () => {
-        setMapLoaded(true);
-        requestLocation();
-      };
-
-      document.head.appendChild(googleMapScript);
     };
-    
-    loadGoogleMapsScript();
-    
+
+    initializeMap();
+
+    // Limpieza: Remover el script al desmontar
     return () => {
+      isMounted = false;
       const googleMapScript = document.querySelector(`script[src*="maps.googleapis.com"]`);
-      if (googleMapScript) googleMapScript.remove();
+      if (googleMapScript) {
+        googleMapScript.remove();
+      }
     };
   }, []);
 
@@ -71,7 +100,9 @@ export default function GoogleMaps() {
         mapTypeId: window.google.maps.MapTypeId.ROADMAP,
         fullscreenControl: false,
         streetViewControl: false,
-        mapTypeControl: false
+        mapTypeControl: false,
+        gestureHandling: 'greedy', // Esto permite moverse con un dedo y hacer zoom con dos dedos.
+        disableDoubleClickZoom: true, // Deshabilita el zoom con doble clic
       });
 
       new window.google.maps.Marker({
@@ -84,28 +115,22 @@ export default function GoogleMaps() {
 
   return (
     <div className={styles.mapRoot}>
+      <Sidebar />
       <div className={styles.mapHeader}>
-        <h1 className={styles.mapTitle}>Mapa en Vivo</h1>
-        
+      
         {location && (
-          <button 
-            onClick={requestLocation}
-            className={styles.mapButton}
-          >
-            Actualizar ubicación
+          <button onClick={requestLocation} className={styles.mapButton}>
+            <IoReloadCircle className={styles.reload} size={40} />
           </button>
         )}
-
         {error && (
           <div className={styles.errorBox}>
             <p>{error}</p>
           </div>
         )}
       </div>
-
       <div className={styles.mapContainer}>
         <div id="map" className={styles.mapElement}></div>
-        
         {!location && !error && !mapLoaded && (
           <div className={styles.loadingState}>
             <div className={styles.spinner}></div>
