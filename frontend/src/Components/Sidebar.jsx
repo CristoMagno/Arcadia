@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import {
-  FaBars, FaTh
-} from "react-icons/fa";
+import { FaBars, FaTh } from "react-icons/fa";
+import { BiLogIn } from "react-icons/bi";
+import { IoPeopleOutline } from "react-icons/io5";
 import { NavLink } from 'react-router-dom';
 import '../Estilos/Sidebar.css';
 import logo from '../Images/logo.jpeg';
@@ -29,11 +29,11 @@ const Sidebar = ({ nose }) => {
 
   const menuItems = [
     {
-      name: 'Inicio',
+      name: 'Cuenta',
       path: '/login',
-      icon: <FaTh />,
+      icon: <IoPeopleOutline />,
       submenu: [
-        { name: 'Volver', path: '/login' }
+        { icon: <BiLogIn />, name: 'Iniciar Sesión', path: '/login' }
       ]
     }
   ];
@@ -49,6 +49,7 @@ const Sidebar = ({ nose }) => {
           </div>
           {isExpanded && item.submenu.map((subitem, subindex) => (
             <NavLink to={subitem.path} key={subindex} className="link sublink" activeclassname="active">
+              <div className="icon">{subitem.icon}</div> {/* Añadido el icono aquí */}
               <div className="submenu_text">{subitem.name}</div>
             </NavLink>
           ))}
@@ -69,10 +70,10 @@ const Sidebar = ({ nose }) => {
       <div className={`sidebar ${isOpen ? "open" : ""}`} style={{ width: isOpen ? "200px" : "60px" }}>
         <div className="top">
           <h1 style={{ display: isOpen ? "block" : "none" }} className="logo">
-            <img src={logo} alt="Imagen de login" className="logo-image" />
+            <img src={logoPng} alt="Imagen de login" className="logo-image" />
           </h1>
           <div className="bars" onClick={toggle}>
-            <FaBars/>
+            <FaBars />
           </div>
         </div>
         {menuItems.map(renderMenuItem)}
@@ -80,9 +81,7 @@ const Sidebar = ({ nose }) => {
       <main>{nose}</main>
       {/* Botón para móviles */}
       <div className="mobile-menu-toggle" onClick={toggle}>
-   
-          <img alt="logopng" src={logoPng} className='logoPng' />
-       
+        <img alt="logopng" src={logoPng} className='logoPng' />
       </div>
     </div>
   );

@@ -13,6 +13,20 @@
     z-index: 1000;
     transition: all 0.3s ease;
 }
+.mobile-menu-toggle { 
+    
+    
+    -webkit-tap-highlight-color: rgba(0,0,0,0); 
+
+    transition: transform 0.3s ease-in-out, background 0.5s ease-in-out;
+
+
+}
+
+    .mobile-menu-toggle:active {
+        transform: translateX(-50%) scale(0.6);
+
+    }
 
 main {
     width: 100%;
@@ -22,7 +36,12 @@ main {
 
 .logo-image {
     width: 70%;
+    max-width: 30%;
 }
+
+.mobile-menu-toggle:focus {
+    outline: none;
+  }
 
 .sidebar {
     height: 100vh;
@@ -44,9 +63,10 @@ main {
 
 .logo {
     font-size: 23px;
+    align-items: center;
 }
 .logoPng{
-
+    align-items: center;
     height: auto;
     max-height: 30px;
 }
@@ -87,13 +107,14 @@ h2 {
 
 /* Mobile Menu Toggle Button */
 .mobile-menu-toggle {
-    background: linear-gradient(to right, #292036, #000000);
     display: none;
 }
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
     .mobile-menu-toggle {
+        background: linear-gradient(to right, #292036, #000000);
+        
         display: flex;
         position: fixed;
         bottom: 20px;
@@ -101,7 +122,6 @@ h2 {
         transform: translateX(-50%);
         width: var(--sidebar-mobile-button-size);
         height: var(--sidebar-mobile-button-size);
-        background-color: #007bff;
         border-radius: 50%;
         align-items: center;
         justify-content: center;
@@ -117,7 +137,7 @@ h2 {
 
     .sidebar {
         transform: translateX(-100%);
-        background: linear-gradient(to top, #292036, #000000);
+        background: linear-gradient(to top, #443757, #000000);
         position: fixed;
         top: 0;
         left: 0;
@@ -136,6 +156,11 @@ h2 {
     .bars{
         display: none;
     }
+    .top {
+        display: none;
+   
+    }
+    
 }
 
 /* Desktop Design */

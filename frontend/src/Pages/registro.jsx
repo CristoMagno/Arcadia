@@ -14,10 +14,10 @@ export default function Registro() {
   });
 
   const handleInputChange = (e) => {
-    const { id, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData(prevState => ({
       ...prevState,
-      [id]: value
+      [name]: type === 'radio' ? value : value
     }));
   };
 
@@ -37,15 +37,14 @@ export default function Registro() {
           <h2>Crear Cuenta</h2>
           <p>Ingresa tus datos personales para crear tu cuenta.</p>
 
-         
-
           <form onSubmit={handleSubmit}>
             <div className={styles['name-inputs']}>
               <div className={styles['input-group']}>
                 <label htmlFor="firstName">Nombre</label>
-                <input 
-                  type="text" 
-                  id="firstName" 
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName" // Añadimos el atributo name
                   placeholder="ej. Juan"
                   value={formData.firstName}
                   onChange={handleInputChange}
@@ -54,9 +53,10 @@ export default function Registro() {
               </div>
               <div className={styles['input-group']}>
                 <label htmlFor="lastName">Apellido</label>
-                <input 
-                  type="text" 
-                  id="lastName" 
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName" // Añadimos el atributo name
                   placeholder="ej. Pérez"
                   value={formData.lastName}
                   onChange={handleInputChange}
@@ -69,10 +69,10 @@ export default function Registro() {
               <label>Género</label>
               <div className={styles['radio-group']}>
                 {['Masculino', 'Femenino'].map((gender) => (
-                  <label key={gender} className={styles['radio-option']}>
-                    <input 
-                      type="radio" 
-                      name="gender" 
+                  <label key={gender} className={`${styles['radio-option']} ${formData.gender === gender.toLowerCase() ? styles['radio-option--checked'] : ''}`}>
+                    <input
+                      type="radio"
+                      name="gender" // El atributo name ya está aquí
                       value={gender.toLowerCase()}
                       checked={formData.gender === gender.toLowerCase()}
                       onChange={handleInputChange}
@@ -86,9 +86,10 @@ export default function Registro() {
 
             <div className={styles['form-group']}>
               <label htmlFor="email">Correo Electrónico</label>
-              <input 
-                type="email" 
-                id="email" 
+              <input
+                type="email"
+                id="email"
+                name="email" // Añadimos el atributo name
                 placeholder="ej. juan.perez@gmail.com"
                 value={formData.email}
                 onChange={handleInputChange}
@@ -99,15 +100,16 @@ export default function Registro() {
             <div className={styles['form-group']}>
               <label htmlFor="password">Contraseña</label>
               <div className={styles['password-input']}>
-                <input 
+                <input
                   type={showPassword ? "text" : "password"}
-                  id="password" 
+                  id="password"
+                  name="password" // Añadimos el atributo name
                   placeholder="Ingresa tu contraseña"
                   value={formData.password}
                   onChange={handleInputChange}
                   required
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className={styles['toggle-password']}
@@ -121,10 +123,10 @@ export default function Registro() {
               Registrarse
             </button>
             <div className={styles['divider']}>
-            <div className={styles['divider-line']}></div>
-            <span>o regístrate con Google.</span>
-            <div className={styles['divider-line']}></div>
-          </div>
+              <div className={styles['divider-line']}></div>
+              <span>o regístrate con Google.</span>
+              <div className={styles['divider-line']}></div>
+            </div>
 
             <button type="button" className={styles['google-button']}>
               <img src={logoGoogle} alt="Google" className={styles['google-icon']} />

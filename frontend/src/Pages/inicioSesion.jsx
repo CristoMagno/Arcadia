@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../Estilos/inicioSesion.module.css';
 import logo from '../Images/logo.jpeg';
-
+import ConfirmationDialog from '../Components/ConfirmationDialog'; 
+import logoGoogle from '../Images/g-logo.png';
 export default function InicioSesion() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -24,11 +25,17 @@ export default function InicioSesion() {
     e.preventDefault();
     console.log('Form submitted:', formData);
   };
-
+  
   const handleContinueWithoutLogin = () => {
-    if (window.confirm('Se perderán funcionalidades, ¿seguro?')) {
-      navigate('/mapa');
-    }
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmContinue = () => {
+    setShowConfirmation(false); // Oculta el diálogo
+    navigate('/mapa'); // Navega al mapa
+  };
+  const handleCancelContinue = () => {
+    setShowConfirmation(false); // Oculta el diálogo
   };
 
   return (
@@ -86,13 +93,24 @@ export default function InicioSesion() {
               <p>¿No tienes cuenta? <a href="/signup">Regístrate</a></p>
             </div>
           </form>
+           <button type="button" className={styles['google-button']}>
+                        <img src={logoGoogle} alt="Google" className={styles['google-icon']} />
+                        Continuar con Google
+                      </button>
 
           <button 
             onClick={handleContinueWithoutLogin} 
             className={styles['continue-button']}
           >
             Continuar sin iniciar sesión
+
           </button>
+          <ConfirmationDialog
+        isOpen={showConfirmation}
+        message="Se perderán funcionalidades, ¿seguro?"
+        onConfirm={handleConfirmContinue}
+        onCancel={handleCancelContinue}
+      />
         </div>
       </div>
     </div>

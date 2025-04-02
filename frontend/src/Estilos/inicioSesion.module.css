@@ -210,6 +210,102 @@
         max-height: 120px;
     }
 }
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Asegúrate de que esté por encima de otros elementos */
+  }
+  
+  .dialog-content {
+    background: linear-gradient(to top, #161827, #4900f3); /* Degradado de morado de abajo hacia arriba */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 400px;
+  }
+  
+  .dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  
+  .confirm-button {
+    background: linear-gradient(to right, #196597, #2612d8); /* Degradado de morado de abajo hacia arriba */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Ajusta la sombra para el efecto de hundimiento */
+
+  }
+  .google-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-top: 10px;
+}
+.google-button:hover{
+
+
+    transform: scale(1.02);
+}
+
+.google-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 12px;
+}
+  .cancel-button {
+    background: linear-gradient(to right, #792f2f, #f30000); /* Degradado de morado de abajo hacia arriba */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Ajusta la sombra para el efecto de hundimiento */
+
+  }
+
+  .cancel-button:hover {
+    transform: scale(0.95); /* Reduce ligeramente el tamaño */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Ajusta la sombra para el efecto de hundimiento */
+  }
+  
+  .cancel-button:active {
+    transform: scale(0.9); /* Reduce aún más el tamaño al hacer clic */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Ajusta la sombra para el efecto de hundimiento */
+  }
+
+  .confirm-button:hover {
+    transform: scale(0.95); /* Reduce ligeramente el tamaño */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Ajusta la sombra para el efecto de hundimiento */
+  }
+  
+  .confirm-button:active {
+    transform: scale(0.9); /* Reduce aún más el tamaño al hacer clic */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Ajusta la sombra para el efecto de hundimiento */
+  }
 
 @media (max-width: 600px) {
     .login-container {
