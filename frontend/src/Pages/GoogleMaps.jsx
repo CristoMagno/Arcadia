@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import styles from '../Estilos/GoogleMaps.module.css';
 import Sidebar from "../Components/Sidebar";
 import logoPng from "../Images/logopng.png";
@@ -11,7 +11,8 @@ const loadGoogleMapsScript = () => {
       return resolve();
     }
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVA6g0s25NHqbJrJlW1PPvp_w5uAI_IHw`;
+    const apiKey = process.env.REACT_APP_Maps_API_KEY;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
     script.async = true;
     script.defer = true;
     script.onload = resolve;
@@ -49,19 +50,65 @@ export default function GoogleMaps() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  
+  // Referencias para manipular el mapa y el marcador directamente
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const mapContainerRef = useRef(null);
 
-  // Función para solicitar la ubicación
-  const requestLocation = async () => {
+  // Función para solicitar la ubicación envuelta en useCallback
+  const requestLocation = useCallback(async () => {
     setError(null);
     try {
       const loc = await getCurrentLocation();
       setLocation(loc);
+      
+      // Si el mapa ya existe, actualizamos su centro en lugar de recrearlo
+      if (mapRef.current && window.google?.maps) {
+        mapRef.current.panTo({ lat: loc.lat, lng: loc.lng });
+        
+        // Actualizar la posición del marcador existente
+        if (markerRef.current) {
+          markerRef.current.setPosition({ lat: loc.lat, lng: loc.lng });
+        }
+      }
     } catch (err) {
       console.error("Error de geolocalización:", err);
       setError(err.message);
     }
-  };
+  }, []);
 
+  // Función para inicializar el mapa envuelta en useCallback
+  const onMapLoad = useCallback((location) => {
+    if (!mapRef.current && mapContainerRef.current && window.google?.maps) {
+      // Crear el mapa solo la primera vez
+      mapRef.current = new window.google.maps.Map(mapContainerRef.current, {
+        center: { lat: location.lat, lng: location.lng },
+        zoom: 16,
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+        fullscreenControl: false,
+        streetViewControl: false,
+        mapTypeControl: false,
+        gestureHandling: 'greedy',
+        disableDoubleClickZoom: true,
+      });
+
+      // Crear el marcador solo la primera vez
+      markerRef.current = new window.google.maps.Marker({
+        position: { lat: location.lat, lng: location.lng },
+        map: mapRef.current,
+        title: 'Mi ubicación actual',
+      });
+    } else if (mapRef.current) {
+      // Solo actualizamos el centro del mapa y la posición del marcador
+      mapRef.current.panTo({ lat: location.lat, lng: location.lng });
+      if (markerRef.current) {
+        markerRef.current.setPosition({ lat: location.lat, lng: location.lng });
+      }
+    }
+  }, []);
+
+  // Cargar el script de Google Maps una sola vez
   useEffect(() => {
     let isMounted = true;
 
@@ -82,42 +129,23 @@ export default function GoogleMaps() {
 
     initializeMap();
 
-    // Limpieza: Remover el script al desmontar
     return () => {
       isMounted = false;
-      const googleMapScript = document.querySelector(`script[src*="maps.googleapis.com"]`);
-      if (googleMapScript) {
-        googleMapScript.remove();
-      }
+      // No es necesario eliminar el script al desmontar, ya que queremos reutilizarlo
     };
-  }, []);
+  }, [requestLocation]);
 
+  // Inicializar o actualizar el mapa cuando la ubicación cambia
   useEffect(() => {
     if (location && mapLoaded && window.google?.maps) {
-      const map = new window.google.maps.Map(document.getElementById('map'), {
-        center: { lat: location.lat, lng: location.lng },
-        zoom: 16,
-        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-        fullscreenControl: false,
-        streetViewControl: false,
-        mapTypeControl: false,
-        gestureHandling: 'greedy', // Esto permite moverse con un dedo y hacer zoom con dos dedos.
-        disableDoubleClickZoom: true, // Deshabilita el zoom con doble clic
-      });
-
-      new window.google.maps.Marker({
-        position: { lat: location.lat, lng: location.lng },
-        map,
-        title: 'Mi ubicación actual',
-      });
+      onMapLoad(location);
     }
-  }, [location, mapLoaded]);
+  }, [location, mapLoaded, onMapLoad]);
 
   return (
     <div className={styles.mapRoot}>
       <Sidebar />
       <div className={styles.mapHeader}>
-      
         {location && (
           <button onClick={requestLocation} className={styles.mapButton}>
             <IoReloadCircle className={styles.reload} size={40} />
@@ -130,7 +158,7 @@ export default function GoogleMaps() {
         )}
       </div>
       <div className={styles.mapContainer}>
-        <div id="map" className={styles.mapElement}></div>
+        <div ref={mapContainerRef} className={styles.mapElement}></div>
         {!location && !error && !mapLoaded && (
           <div className={styles.loadingState}>
             <div className={styles.spinner}></div>
