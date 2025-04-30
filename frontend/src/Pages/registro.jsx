@@ -1,15 +1,36 @@
+// src/Pages/registro.jsx
 import React, { useState, useCallback, memo } from 'react';
 import styles from '../Estilos/registro.module.css';
 import logo from '../Images/logo.jpeg';
 import logoGoogle from '../Images/g-logo.png';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { app, db } from './firebase-config';
 
-// Componente reutilizable para campos de entrada estándar
-const InputField = memo(({ label, id, name, type, placeholder, value, onChange, required }) => {
-  return (
-    <div className={styles['input-group']}>
-      <label htmlFor={id}>{label}</label>
+const auth = getAuth(app);
+
+const InputField = memo(({ label, id, name, type, placeholder, value, onChange, required }) => (
+  <div className={styles['input-group']}>
+    <label htmlFor={id}>{label}</label>
+    <input
+      type={type}
+      id={id}
+      name={name}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      required={required}
+    />
+  </div>
+));
+InputField.displayName = 'InputField';
+
+const PasswordField = memo(({ label, id, name, placeholder, value, onChange, required, showPassword, onTogglePassword }) => (
+  <div className={styles['form-group']}>
+    <label htmlFor={id}>{label}</label>
+    <div className={styles['password-input']}>
       <input
-        type={type}
+        type={showPassword ? "text" : "password"}
         id={id}
         name={name}
         placeholder={placeholder}
@@ -17,68 +38,41 @@ const InputField = memo(({ label, id, name, type, placeholder, value, onChange, 
         onChange={onChange}
         required={required}
       />
+      <button
+        type="button"
+        onClick={onTogglePassword}
+        className={styles['toggle-password']}
+      >
+        {showPassword ? "Ocultar" : "Mostrar"}
+      </button>
     </div>
-  );
-});
-
-InputField.displayName = 'InputField';
-
-// Componente reutilizable para campo de contraseña con toggle
-const PasswordField = memo(({ label, id, name, placeholder, value, onChange, required, showPassword, onTogglePassword }) => {
-  return (
-    <div className={styles['form-group']}>
-      <label htmlFor={id}>{label}</label>
-      <div className={styles['password-input']}>
-        <input
-          type={showPassword ? "text" : "password"}
-          id={id}
-          name={name}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          required={required}
-        />
-        <button
-          type="button"
-          onClick={onTogglePassword}
-          className={styles['toggle-password']}
-        >
-          {showPassword ? "Ocultar" : "Mostrar"}
-        </button>
-      </div>
-    </div>
-  );
-});
-
+  </div>
+));
 PasswordField.displayName = 'PasswordField';
 
-// Componente para grupo de radio buttons
-const RadioGroup = memo(({ label, name, options, selectedValue, onChange, required }) => {
-  return (
-    <div className={styles['form-group']}>
-      <label>{label}</label>
-      <div className={styles['radio-group']}>
-        {options.map((option) => (
-          <label 
-            key={option} 
-            className={`${styles['radio-option']} ${selectedValue === option.toLowerCase() ? styles['radio-option--checked'] : ''}`}
-          >
-            <input
-              type="radio"
-              name={name}
-              value={option.toLowerCase()}
-              checked={selectedValue === option.toLowerCase()}
-              onChange={onChange}
-              required={required}
-            />
-            <span>{option}</span>
-          </label>
-        ))}
-      </div>
+const RadioGroup = memo(({ label, name, options, selectedValue, onChange, required }) => (
+  <div className={styles['form-group']}>
+    <label>{label}</label>
+    <div className={styles['radio-group']}>
+      {options.map((option) => (
+        <label
+          key={option}
+          className={`${styles['radio-option']} ${selectedValue === option.toLowerCase() ? styles['radio-option--checked'] : ''}`}
+        >
+          <input
+            type="radio"
+            name={name}
+            value={option.toLowerCase()}
+            checked={selectedValue === option.toLowerCase()}
+            onChange={onChange}
+            required={required}
+          />
+          <span>{option}</span>
+        </label>
+      ))}
     </div>
-  );
-});
-
+  </div>
+));
 RadioGroup.displayName = 'RadioGroup';
 
 export default function Registro() {
@@ -91,35 +85,44 @@ export default function Registro() {
     password: ''
   });
 
-  // Optimizado con useCallback para evitar recreaciones en cada render
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }, []);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev);
   }, []);
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Aquí iría la lógica de registro
-  }, [formData]);
+    const { email, password, firstName, lastName, gender } = formData;
 
-  const togglePasswordVisibility = useCallback(() => {
-    setShowPassword(prevState => !prevState);
-  }, []);
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+
+        await setDoc(doc(db, 'usuarios', user.uid), {
+          firstName,
+          lastName,
+          gender,
+          email,
+          createdAt: new Date()
+        });
+
+        alert(`Bienvenido, ${firstName} ${lastName}!`);
+      })
+      .catch((error) => {
+        console.error('Error al registrar:', error.code, error.message);
+        alert('Error al registrarse: ' + error.message);
+      });      
+  }, [formData]);
 
   return (
     <div className={styles['signup-container']}>
       <div className={styles['signup-wrapper']}>
         <div className={styles['signup-image-panel']}>
-          <img 
-            src={logo} 
-            alt="Registro" 
-            className={styles['signup-image']} 
-            loading="lazy"
-          />
+          <img src={logo} alt="Registro" className={styles['signup-image']} loading="lazy" />
         </div>
 
         <div className={styles['signup-form-panel']}>
@@ -136,7 +139,7 @@ export default function Registro() {
                 placeholder="ej. Juan"
                 value={formData.firstName}
                 onChange={handleInputChange}
-                required={true}
+                required
               />
               <InputField
                 label="Apellido"
@@ -146,7 +149,7 @@ export default function Registro() {
                 placeholder="ej. Pérez"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                required={true}
+                required
               />
             </div>
 
@@ -156,7 +159,7 @@ export default function Registro() {
               options={['Masculino', 'Femenino']}
               selectedValue={formData.gender}
               onChange={handleInputChange}
-              required={true}
+              required
             />
 
             <InputField
@@ -167,7 +170,7 @@ export default function Registro() {
               placeholder="ej. juan.perez@gmail.com"
               value={formData.email}
               onChange={handleInputChange}
-              required={true}
+              required
             />
 
             <PasswordField
@@ -177,7 +180,7 @@ export default function Registro() {
               placeholder="Ingresa tu contraseña"
               value={formData.password}
               onChange={handleInputChange}
-              required={true}
+              required
               showPassword={showPassword}
               onTogglePassword={togglePasswordVisibility}
             />
@@ -185,7 +188,7 @@ export default function Registro() {
             <button type="submit" className={styles['submit-button']}>
               Registrarse
             </button>
-            
+
             <div className={styles['divider']}>
               <div className={styles['divider-line']}></div>
               <span>o regístrate con Google.</span>
@@ -193,12 +196,7 @@ export default function Registro() {
             </div>
 
             <button type="button" className={styles['google-button']}>
-              <img 
-                src={logoGoogle} 
-                alt="Google" 
-                className={styles['google-icon']}
-                loading="lazy" 
-              />
+              <img src={logoGoogle} alt="Google" className={styles['google-icon']} loading="lazy" />
               Continuar con Google
             </button>
 
