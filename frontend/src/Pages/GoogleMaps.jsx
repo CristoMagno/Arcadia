@@ -50,65 +50,18 @@ export default function GoogleMaps() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  
-  // Referencias para manipular el mapa y el marcador directamente
-  const mapRef = useRef(null);
-  const markerRef = useRef(null);
-  const mapContainerRef = useRef(null);
 
-  // Función para solicitar la ubicación envuelta en useCallback
-  const requestLocation = useCallback(async () => {
+  const requestLocation = async () => {
     setError(null);
     try {
       const loc = await getCurrentLocation();
       setLocation(loc);
-      
-      // Si el mapa ya existe, actualizamos su centro en lugar de recrearlo
-      if (mapRef.current && window.google?.maps) {
-        mapRef.current.panTo({ lat: loc.lat, lng: loc.lng });
-        
-        // Actualizar la posición del marcador existente
-        if (markerRef.current) {
-          markerRef.current.setPosition({ lat: loc.lat, lng: loc.lng });
-        }
-      }
     } catch (err) {
       console.error("Error de geolocalización:", err);
       setError(err.message);
     }
-  }, []);
+  };
 
-  // Función para inicializar el mapa envuelta en useCallback
-  const onMapLoad = useCallback((location) => {
-    if (!mapRef.current && mapContainerRef.current && window.google?.maps) {
-      // Crear el mapa solo la primera vez
-      mapRef.current = new window.google.maps.Map(mapContainerRef.current, {
-        center: { lat: location.lat, lng: location.lng },
-        zoom: 16,
-        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-        fullscreenControl: false,
-        streetViewControl: false,
-        mapTypeControl: false,
-        gestureHandling: 'greedy',
-        disableDoubleClickZoom: true,
-      });
-
-      // Crear el marcador solo la primera vez
-      markerRef.current = new window.google.maps.Marker({
-        position: { lat: location.lat, lng: location.lng },
-        map: mapRef.current,
-        title: 'Mi ubicación actual',
-      });
-    } else if (mapRef.current) {
-      // Solo actualizamos el centro del mapa y la posición del marcador
-      mapRef.current.panTo({ lat: location.lat, lng: location.lng });
-      if (markerRef.current) {
-        markerRef.current.setPosition({ lat: location.lat, lng: location.lng });
-      }
-    }
-  }, []);
-
-  // Cargar el script de Google Maps una sola vez
   useEffect(() => {
     let isMounted = true;
 
@@ -131,16 +84,46 @@ export default function GoogleMaps() {
 
     return () => {
       isMounted = false;
-      // No es necesario eliminar el script al desmontar, ya que queremos reutilizarlo
+      const googleMapScript = document.querySelector(`script[src*="maps.googleapis.com"]`);
+      if (googleMapScript) {
+        googleMapScript.remove();
+      }
     };
-  }, [requestLocation]);
+  }, []);
 
-  // Inicializar o actualizar el mapa cuando la ubicación cambia
   useEffect(() => {
     if (location && mapLoaded && window.google?.maps) {
-      onMapLoad(location);
+      const map = new window.google.maps.Map(document.getElementById('map'), {
+        center: { lat: location.lat, lng: location.lng },
+        zoom: 16,
+        mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+        fullscreenControl: false,
+        streetViewControl: false,
+        mapTypeControl: false,
+        gestureHandling: 'greedy',
+        disableDoubleClickZoom: true,
+      });
+
+      // Marcador con flecha que indica la dirección
+      new window.google.maps.Marker({
+        position: { lat: location.lat, lng: location.lng },
+        map,
+        title: 'Mi ubicación actual',
+        icon: {
+          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="5" fill="#0033FF"/>
+              <circle cx="20" cy="20" r="7" fill="none" stroke="#ffffff" stroke-width="4"/>
+              <circle cx="20" cy="20" r="20" fill="#AECBFA" fill-opacity="0.4"/>
+              
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(40, 40),
+          anchor: new window.google.maps.Point(20, 20), // Centro del ícono de la flecha
+        },
+      });
     }
-  }, [location, mapLoaded, onMapLoad]);
+  }, [location, mapLoaded]);
 
   return (
     <div className={styles.mapRoot}>
@@ -158,7 +141,7 @@ export default function GoogleMaps() {
         )}
       </div>
       <div className={styles.mapContainer}>
-        <div ref={mapContainerRef} className={styles.mapElement}></div>
+        <div id="map" className={styles.mapElement}></div>
         {!location && !error && !mapLoaded && (
           <div className={styles.loadingState}>
             <div className={styles.spinner}></div>
