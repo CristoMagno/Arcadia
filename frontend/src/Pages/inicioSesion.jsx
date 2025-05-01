@@ -5,7 +5,8 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import styles from '../Estilos/inicioSesion.module.css';
 import logo from '../Images/logo.jpeg';
 import logoGoogle from '../Images/g-logo.png';
-import { db } from './firebase-config';  // Asumiendo que has configurado firebase-config.js
+import { db } from './firebase-config'; // Asumiendo que has configurado firebase-config.js
+import ConfirmationDialog from '../Components//ConfirmationDialog'; // Importa el componente ConfirmationDialog
 
 const auth = getAuth();
 const provider = new GoogleAuthProvider();
@@ -183,7 +184,13 @@ export default function InicioSesion() {
             Continuar sin iniciar sesión
           </button>
 
-          {/* Aquí puedes colocar tu ConfirmationDialog si lo necesitas */}
+          {/* Renderiza el ConfirmationDialog */}
+          <ConfirmationDialog
+            isOpen={showConfirmation} // Controla la visibilidad con el estado showConfirmation
+            message="¿Estás seguro de que deseas continuar sin iniciar sesión? Perderás el acceso a funciones personalizadas." // Mensaje a mostrar
+            onConfirm={handleConfirmContinue} // Función a ejecutar si se confirma
+            onCancel={handleCancelContinue} // Función a ejecutar si se cancela
+          />
         </div>
       </div>
     </div>
