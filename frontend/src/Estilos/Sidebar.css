@@ -4,6 +4,79 @@
     --sidebar-mobile-color: #333;
 }
 
+.submenu_container {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-in-out;
+    padding-left: 20px; 
+}
+
+.submenu_container.open {
+    max-height: 500px; 
+}
+
+.sublink {
+    padding-left: 30px !important; 
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.submenu_text {
+    font-size: 18px; 
+    display: block; 
+}
+
+
+.gps-status-message {
+    position: absolute;
+    bottom: 20px; 
+    left: 10px;
+    right: 10px;
+    background-color: rgba(75, 85, 99, 0.9);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 0.9em;
+    z-index: 1100;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+.gps-status-message {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    text-align: center;
+    max-width: calc(var(--sidebar-width) - 20px);
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* Asegúrate que estos estilos existan o añádelos */
+  .sidebar {
+    position: relative; /* Para posicionar el mensaje correctamente */
+  }
+  
+  /* Estilo para botón de GPS */
+  .link:has(.icon:has(svg[data-icon="outline-developer-board"])) {
+    color: var(--primary-color, #4e73df);
+  }
+  
+  /* Estilo para GPS conectado */
+  .sidebar .link.gps-connected .icon {
+    color: #4CAF50;
+  }
 .contenedor {
     position: fixed;
     top: 0;
@@ -54,6 +127,8 @@ main {
     left: 0;
     top: 0;
 }
+
+
 
 .top {
     display: flex;
@@ -173,3 +248,62 @@ h2 {
         display: none;
     }
 }
+/* Agregar al final de tu archivo Sidebar.css */
+
+/* Estilos para los estados del botón de GPS */
+.link.connecting {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .link.connected {
+    color: #4caf50;
+  }
+  
+  .link.connected .icon {
+    color: #4caf50;
+  }
+  
+  /* Estilo para el ícono giratorio durante la conexión */
+  .rotating-icon {
+    animation: rotate 1.5s linear infinite;
+  }
+  
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Estilos para los mensajes de estado del GPS */
+  .gps-status-message {
+    position: absolute;
+    bottom: 20px;
+    left: 15px;
+    right: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+    z-index: 100;
+    transition: all 0.3s ease;
+  }
+  
+  .gps-status-message.connecting {
+    background-color: #fff8e1;
+    border-left: 4px solid #ffc107;
+  }
+  
+  .gps-status-message.success {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+  }
+  
+  .gps-status-message.error {
+    background-color: #2c0007;
+    border-left: 4px solid #f44336;
+  }

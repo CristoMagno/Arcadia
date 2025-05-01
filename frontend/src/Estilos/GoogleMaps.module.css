@@ -215,3 +215,240 @@
     padding: 0.3rem 0.6rem;
   }
 }
+
+/* Añadir estos estilos a tu archivo GoogleMaps.module.css */
+
+.gpsToggle {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  padding: 5px 12px;
+  margin-left: 10px;
+  transition: all 0.3s ease;
+}
+
+.gpsToggle.active {
+  background-color: #e1f5fe;
+  border-color: #0288d1;
+  color: #0288d1;
+}
+
+.gpsLabel {
+  margin-left: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.gpsInfo {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-left: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gpsCoords {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.gpsTimestamp {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* Estilo para cuando estamos en modo GPS externo */
+/* In GoogleMaps.module.css */
+
+.mapHeader {
+  padding: 1rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto; /* Adjusted from 20% to auto */
+  padding-right: 1rem;
+  /* Remove or comment out existing background properties */
+  /* background-color: rgba(255, 255, 255, 0.9); */ /* Example: Remove this */
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */ /* Optional: Remove shadow if you want it fully invisible */
+  background-color: transparent; /* Ensure background is transparent */
+  pointer-events: none; /* Allow clicks to pass through the header container */
+}
+
+/* Make sure buttons within the header are clickable */
+.mapButton,
+.gpsToggle,
+.gpsInfo { /* Add other interactive elements here if needed */
+  pointer-events: auto; /* Override pointer-events for buttons/elements */
+   /* You might need to re-add a background if you removed it from .mapHeader and want the buttons to have one */
+   /* background-color: rgba(0, 0, 0, 0.6); /* Example semi-transparent background for buttons */
+   /* border-radius: 20px; */ /* Example styling */
+   /* padding: 5px 12px; */ /* Example styling */
+}
+
+/* Optional: Adjust media query if needed */
+.mapHeader {
+  padding: 1rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto;
+  padding-right: 1rem;
+  background-color: transparent; /* Fondo completamente transparente */
+  pointer-events: none; /* Permitir que los clics pasen a través del contenedor */
+}
+
+/* Hacer que los elementos dentro del header sean interactivos */
+.mapButton,
+.gpsToggle,
+.gpsInfo {
+  pointer-events: auto; /* Anular pointer-events para que los botones sean interactivos */
+  margin-bottom: 0.5rem; /* Espacio entre botones */
+}
+
+/* Estilos para botones que necesiten un fondo para ser visible */
+.mapButton {
+  background-color: rgba(37, 99, 235, 0.8); /* Semi-transparente */
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  border: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mapButton:hover {
+  background-color: rgba(37, 99, 235, 0.9);
+  transform: scale(1.05);
+}
+
+.mapButton:active {
+  background-color: rgba(37, 99, 235, 1);
+  transform: scale(0.98);
+}
+
+/* Estilos para el toggle del GPS externo */
+.gpsToggle {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #333;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  padding: 5px 12px;
+  transition: all 0.3s ease;
+}
+
+.gpsToggle.active {
+  background-color: rgba(225, 245, 254, 0.9);
+  border-color: #0288d1;
+  color: #0288d1;
+}
+
+.gpsLabel {
+  margin-left: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Estilos para la información del GPS */
+.gpsInfo {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gpsCoords {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.gpsTimestamp {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.transparentHeader {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  pointer-events: none; /* Permite que los clics pasen a través del header al mapa */
+}
+
+/* Asegurar que los botones y elementos interactivos sean clickeables */
+.mapButton,
+.gpsToggle,
+.gpsInfo,
+.errorBox {
+  pointer-events: auto; /* Restaura la capacidad de interacción solo para estos elementos */
+  z-index: 1000; /* Asegura que estén por encima del mapa */
+}
+
+/* Estilos mejorados para el botón de GPS */
+.gpsToggle {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.gpsToggle.active {
+  background-color: #e1f5fe;
+  border-color: #0288d1;
+  color: #0288d1;
+}
+
+/* Información de GPS con mejor contraste */
+.gpsInfo {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+}
+
+/* Asegurarse que todo el header tenga margen adecuado */
+.mapHeader {
+  padding: 1rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto;
+  padding-right: 1rem;
+}
+
