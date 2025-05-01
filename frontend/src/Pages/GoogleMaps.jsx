@@ -54,8 +54,7 @@ export default function GoogleMaps() {
   const [usingExternalGps, setUsingExternalGps] = useState(false);
   const [showExternalGpsButton, setShowExternalGpsButton] = useState(false);
   const mapRef = useRef(null);
-  const markerRef = useRef(null);
-  const externalMarkerRef = useRef(null);
+  const activeMarkerRef = useRef(null); // Un solo marcador activo en lugar de dos separados
   const wsRef = useRef(null);
   const [lastUpdate, setLastUpdate] = useState(null);
 
@@ -121,7 +120,7 @@ export default function GoogleMaps() {
             
             // Si estamos usando GPS externo, actualizar la vista del mapa
             if (usingExternalGps && mapRef.current) {
-              updateExternalGpsMarker(parseFloat(lat), parseFloat(lng));
+              updateMarker(parseFloat(lat), parseFloat(lng), true);
             }
           }
         } catch (error) {
@@ -148,76 +147,66 @@ export default function GoogleMaps() {
       setUsingExternalGps(false);
     }
     
-    // Ocultar el marcador del GPS externo si existe
-    if (externalMarkerRef.current && mapRef.current) {
-      externalMarkerRef.current.setVisible(false);
-    }
-    
-    // Mostrar el marcador del GPS del dispositivo
-    if (markerRef.current && mapRef.current) {
-      markerRef.current.setVisible(true);
-    }
-    
-    // Centrar el mapa en la ubicación del dispositivo si está disponible
+    // Mostrar el marcador del GPS del dispositivo si está disponible
     if (location && mapRef.current) {
+      updateMarker(location.lat, location.lng, false);
       mapRef.current.panTo({ lat: location.lat, lng: location.lng });
     }
   }, [location, usingExternalGps]);
 
-  // Actualizar marcador de GPS externo
-  const updateExternalGpsMarker = (lat, lng) => {
+  // Función unificada para actualizar el marcador según la fuente de ubicación
+  const updateMarker = (lat, lng, isExternalGps) => {
     if (!mapRef.current || !window.google?.maps) return;
     
     const position = { lat, lng };
+    const isExternal = isExternalGps || usingExternalGps;
     
-    // Si no existe el marcador, crearlo
-    if (!externalMarkerRef.current) {
-      externalMarkerRef.current = new window.google.maps.Marker({
-        position,
-        map: mapRef.current,
-        title: 'GPS Externo',
-        icon: {
-          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="5" fill="#FF3300"/>
-              <circle cx="20" cy="20" r="7" fill="none" stroke="#ffffff" stroke-width="4"/>
-              <circle cx="20" cy="20" r="20" fill="#FFCCCC" fill-opacity="0.4"/>
-            </svg>
-          `),
-          scaledSize: new window.google.maps.Size(40, 40),
-          anchor: new window.google.maps.Point(20, 20),
-        },
-        zIndex: 2, // Poner encima del marcador de ubicación normal
-      });
-      
-      // Crear un infowindow para mostrar datos
-      const infoWindow = new window.google.maps.InfoWindow({
-        content: `<div>
+    // Eliminar el marcador existente si hay uno
+    if (activeMarkerRef.current) {
+      activeMarkerRef.current.setMap(null);
+      activeMarkerRef.current = null;
+    }
+    
+    // Crear un nuevo marcador con el estilo correspondiente
+    activeMarkerRef.current = new window.google.maps.Marker({
+      position,
+      map: mapRef.current,
+      title: isExternal ? 'GPS Externo' : 'Mi ubicación actual',
+      icon: {
+        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="5" fill="${isExternal ? '#FF3300' : '#0033FF'}"/>
+            <circle cx="20" cy="20" r="7" fill="none" stroke="#ffffff" stroke-width="4"/>
+            <circle cx="20" cy="20" r="20" fill="${isExternal ? '#FFCCCC' : '#AECBFA'}" fill-opacity="0.4"/>
+          </svg>
+        `),
+        scaledSize: new window.google.maps.Size(40, 40),
+        anchor: new window.google.maps.Point(20, 20),
+      },
+    });
+    
+    // Crear un infowindow para mostrar datos
+    const infoContent = isExternal 
+      ? `<div>
           <strong>GPS Externo</strong><br>
           Lat: ${lat.toFixed(6)}<br>
           Lng: ${lng.toFixed(6)}<br>
           Última actualización: ${new Date().toLocaleTimeString()}
         </div>`
-      });
-      
-      // Mostrar info al hacer clic
-      externalMarkerRef.current.addListener('click', () => {
-        infoWindow.open(mapRef.current, externalMarkerRef.current);
-      });
-    } else {
-      // Actualizar posición del marcador existente
-      externalMarkerRef.current.setPosition(position);
-    }
+      : `<div>
+          <strong>GPS Dispositivo</strong><br>
+          Lat: ${lat.toFixed(6)}<br>
+          Lng: ${lng.toFixed(6)}
+        </div>`;
     
-    // Actualizar visibilidad según el modo de GPS
-    if (externalMarkerRef.current) {
-      externalMarkerRef.current.setVisible(usingExternalGps);
-    }
+    const infoWindow = new window.google.maps.InfoWindow({
+      content: infoContent
+    });
     
-    // Centrar el mapa en la nueva posición si está activado el seguimiento
-    if (usingExternalGps) {
-      mapRef.current.panTo(position);
-    }
+    // Mostrar info al hacer clic
+    activeMarkerRef.current.addListener('click', () => {
+      infoWindow.open(mapRef.current, activeMarkerRef.current);
+    });
   };
 
   // Cambiar entre GPS del dispositivo y GPS externo
@@ -225,20 +214,13 @@ export default function GoogleMaps() {
     const newUsingExternalGps = !usingExternalGps;
     setUsingExternalGps(newUsingExternalGps);
     
-    // Asegurarnos de que los marcadores se muestren correctamente
+    // Actualizar el marcador según la nueva fuente seleccionada
     if (mapRef.current) {
-      if (markerRef.current) {
-        markerRef.current.setVisible(!newUsingExternalGps);
-      }
-      
-      if (externalMarkerRef.current) {
-        externalMarkerRef.current.setVisible(newUsingExternalGps);
-      }
-      
-      // Centrar el mapa en la ubicación correcta
       if (newUsingExternalGps && externalGpsLocation) {
+        updateMarker(externalGpsLocation.lat, externalGpsLocation.lng, true);
         mapRef.current.panTo({ lat: externalGpsLocation.lat, lng: externalGpsLocation.lng });
       } else if (!newUsingExternalGps && location) {
+        updateMarker(location.lat, location.lng, false);
         mapRef.current.panTo({ lat: location.lat, lng: location.lng });
       }
     }
@@ -314,19 +296,8 @@ export default function GoogleMaps() {
       // Actualizar vista si cambió el modo de GPS
       mapRef.current.panTo({ lat: currentLocation.lat, lng: currentLocation.lng });
       
-      // Actualizar visibilidad de los marcadores según el modo
-      if (markerRef.current) {
-        markerRef.current.setPosition({ lat: location?.lat || 0, lng: location?.lng || 0 });
-        markerRef.current.setVisible(!usingExternalGps);
-      }
-      
-      if (externalMarkerRef.current && externalGpsLocation) {
-        externalMarkerRef.current.setPosition({ 
-          lat: externalGpsLocation.lat, 
-          lng: externalGpsLocation.lng 
-        });
-        externalMarkerRef.current.setVisible(usingExternalGps);
-      }
+      // Actualizar el marcador con la ubicación apropiada
+      updateMarker(currentLocation.lat, currentLocation.lng, usingExternalGps);
       
       return;
     }
@@ -343,36 +314,8 @@ export default function GoogleMaps() {
       disableDoubleClickZoom: true,
     });
 
-    // Crear marcador de ubicación del dispositivo
-    if (location) {
-      markerRef.current = new window.google.maps.Marker({
-        position: { lat: location.lat, lng: location.lng },
-        map: mapRef.current,
-        title: 'Mi ubicación actual',
-        visible: !usingExternalGps,
-        icon: {
-          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="5" fill="#0033FF"/>
-              <circle cx="20" cy="20" r="7" fill="none" stroke="#ffffff" stroke-width="4"/>
-              <circle cx="20" cy="20" r="20" fill="#AECBFA" fill-opacity="0.4"/>
-            </svg>
-          `),
-          scaledSize: new window.google.maps.Size(40, 40),
-          anchor: new window.google.maps.Point(20, 20),
-        },
-      });
-    }
-    
-    // Si tenemos ubicación por GPS externo, crear su marcador también
-    if (externalGpsLocation) {
-      updateExternalGpsMarker(externalGpsLocation.lat, externalGpsLocation.lng);
-      
-      // Asegurarse de que el marcador externo se muestre solo cuando corresponda
-      if (externalMarkerRef.current) {
-        externalMarkerRef.current.setVisible(usingExternalGps);
-      }
-    }
+    // Crear marcador inicial
+    updateMarker(currentLocation.lat, currentLocation.lng, usingExternalGps);
     
   }, [location, externalGpsLocation, mapLoaded, usingExternalGps]);
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import logoPng from '../Images/logopng.png'; // Asegúrate que la ruta al logo sea correcta
-import styles from '../Estilos/SplashScreen.module.css'; // Crearemos este archivo CSS
+import logoPng from '../Images/logopng.png'; 
+import styles from '../Estilos/SplashScreen.module.css';
 
 const SplashScreen = () => {
   return (

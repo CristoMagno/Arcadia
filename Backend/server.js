@@ -1,4 +1,3 @@
-// En server.js (simplificado - necesitarás instalar 'ws')
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -9,7 +8,7 @@ const WebSocket = require('ws');          // Para comunicación en tiempo real
 dotenv.config();
 const app = express();
 
-// Configuración de CORS, Morgan, etc. (como ya lo tienes)
+// Configuración de CORS, Morgan, etc.
 app.use(cors({ origin: "http://localhost:3000" }));
 app.use(morgan("dev"));
 app.use(express.json());
@@ -75,8 +74,8 @@ function startGpsReader() {
              }
         } else if (!output.toLowerCase().includes('conectado a') && !output.toLowerCase().includes('puerto serial cerrado') && !output.toLowerCase().includes('arduino encontrado')) {
              // Imprime otra salida que no sea la conexión inicial o cierre
-             res.status(200).send({ message: 'CONECTADO' });
              console.log(`Mensaje Python: ${output}`);
+            
         }
     });
 
@@ -102,27 +101,27 @@ function startGpsReader() {
 app.get('/api/connect-gps', (req, res) => {
   if (!pythonProcess) {
     startGpsReader();
-    res.status(200).send({ message: 'Intentando conectar al GPS externo...' });
+    res.status(200).json({ success: true, message: 'Intentando conectar al GPS externo...' });
   } else {
-    res.status(200).send({ message: 'El lector GPS ya está activo.' });
+    res.status(200).json({ success: true, message: 'El lector GPS ya está activo.' });
   }
 });
 
- app.get('/api/disconnect-gps', (req, res) => {
+app.get('/api/disconnect-gps', (req, res) => {
   if (pythonProcess) {
     console.log('Deteniendo lector GPS...');
     pythonProcess.kill('SIGTERM'); // Envía señal para terminar
     // Podrías necesitar SIGKILL si SIGTERM no funciona: pythonProcess.kill('SIGKILL');
     pythonProcess = null;
-     res.status(200).send({ message: 'Lector GPS detenido.' });
+    res.status(200).json({ success: true, message: 'Lector GPS detenido.' });
   } else {
-     res.status(404).send({ message: 'El lector GPS no estaba activo.' });
+    res.status(200).json({ success: true, message: 'El lector GPS no estaba activo.' });
   }
 });
 // --- Fin Lógica Python ---
 
 
-// Ruta raíz y listener (como ya lo tienes)
+// Ruta raíz y listener
 app.get("/", (req, res) => {
     return res.status(200).send("<h1>Backend Arcadia Explorer</h1>");
 });

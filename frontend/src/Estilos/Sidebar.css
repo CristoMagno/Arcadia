@@ -294,16 +294,16 @@ h2 {
   }
   
   .gps-status-message.connecting {
-    background-color: #fff8e1;
+    background-color: #000000;
     border-left: 4px solid #ffc107;
   }
   
   .gps-status-message.success {
-    background-color: #e8f5e9;
+    background-color: #000000;
     border-left: 4px solid #4caf50;
   }
   
   .gps-status-message.error {
-    background-color: #2c0007;
+    background-color: #000000;
     border-left: 4px solid #f44336;
   }

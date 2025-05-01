@@ -78,14 +78,20 @@ const Sidebar = ({ nose }) => {
 
     // Llamar al endpoint del backend para iniciar la conexión
     fetch('http://localhost:3001/api/connect-gps')
-      .then(response => response.json())
-      .then(data => {
+      .then(response => {
+        const statusOk = response.ok; // Guardar el estado de la respuesta
+        return response.json().then(data => {
+          return { data, statusOk };
+        });
+      })
+      .then(({ data, statusOk }) => {
         // Limpiar el timeout ya que obtuvimos respuesta
         clearTimeout(timeoutId);
         
         console.log("Respuesta del servidor:", data);
         
-        if (data.success) {
+        // Considerar exitosa la respuesta si el status es 200 o si data.success es true
+        if (statusOk || data.success) {
           setGpsMessageText(data.message || "GPS conectado correctamente");
           setGpsConnected(true);
           
