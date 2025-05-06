@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 import styles from '../Estilos/GoogleMaps.module.css';
 import Sidebar from "../Components/Sidebar";
 import logoPng from "../Images/logopng.png";
@@ -11,8 +11,7 @@ const loadGoogleMapsScript = () => {
       return resolve();
     }
     const script = document.createElement("script");
-    const apiKey = process.env.REACT_APP_Maps_API_KEY;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVA6g0s25NHqbJrJlW1PPvp_w5uAI_IHw`;
     script.async = true;
     script.defer = true;
     script.onload = resolve;
@@ -50,7 +49,9 @@ export default function GoogleMaps() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [markers, setMarkers] = useState([]); // <-- Agregado para manejar marcadores
 
+  // Función para solicitar la ubicación
   const requestLocation = async () => {
     setError(null);
     try {
@@ -82,6 +83,7 @@ export default function GoogleMaps() {
 
     initializeMap();
 
+    // Limpieza: Remover el script al desmontar
     return () => {
       isMounted = false;
       const googleMapScript = document.querySelector(`script[src*="maps.googleapis.com"]`);
@@ -104,23 +106,38 @@ export default function GoogleMaps() {
         disableDoubleClickZoom: true,
       });
 
-      // Marcador con flecha que indica la dirección
+      // Marcador de la ubicación actual
       new window.google.maps.Marker({
         position: { lat: location.lat, lng: location.lng },
         map,
         title: 'Mi ubicación actual',
-        icon: {
-          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-              <circle cx="20" cy="20" r="5" fill="#0033FF"/>
-              <circle cx="20" cy="20" r="7" fill="none" stroke="#ffffff" stroke-width="4"/>
-              <circle cx="20" cy="20" r="20" fill="#AECBFA" fill-opacity="0.4"/>
-              
-            </svg>
-          `),
-          scaledSize: new window.google.maps.Size(40, 40),
-          anchor: new window.google.maps.Point(20, 20), // Centro del ícono de la flecha
-        },
+      });
+
+      // Evento de clic para agregar nuevos marcadores personalizados
+      window.google.maps.event.addListener(map, 'click', (e) => {
+        const nombre = prompt("Introduce un nombre para el marcador:");
+        if (!nombre) {
+          alert("Nombre inválido. Marcador no creado.");
+          return;
+        }
+
+        const lat = e.latLng.lat();
+        const lng = e.latLng.lng();
+
+        const marker = new window.google.maps.Marker({
+          position: { lat, lng },
+          map,
+          title: nombre,
+        });
+
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `<strong>${nombre}</strong><br>${lat.toFixed(5)}, ${lng.toFixed(5)}`
+        });
+
+        marker.addListener('click', () => infoWindow.open(map, marker));
+
+        setMarkers(prev => [...prev, { nombre, lat, lng, marker }]);
+        console.log("Marcadores actuales:", [...markers, { nombre, lat, lng }]);
       });
     }
   }, [location, mapLoaded]);
